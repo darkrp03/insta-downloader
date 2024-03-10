@@ -16,10 +16,6 @@ export class InstagramService {
         const video_version = video_versions[video_versions.length - 1];
         const url = video_version["url"];
 
-        if (!url) {
-            return;
-        }
-
         return url;
     }
 
