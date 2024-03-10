@@ -35,6 +35,12 @@ npm start
 
 You've just launched a bot on your local machine!
 
+6.After successfull loading you need to setup your webhook with telegram. Make this request:
+
+```
+https://api.telegram.org/bot[PASTE TELEGRAM BOT TOKEN HERE]/setWebhook?url=https://your-webhook-url.com
+```
+
 ## Online (AWS Lambda)
 1.Clone this project using git clone https://github.com/darkrp03/insta-downloader.git<br>
 2.Open cmd and navigate to the project folder.<br>
