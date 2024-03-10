@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "npx tsc && serverless offline",
-    "deploy": "npx tsc && serverless deploy --aws-profile adminProfile",
+    "deploy-win": "npx tsc && serverless deploy --aws-profile %npm_config_profile%",
+    "deploy-bash": "npx tsc && serverless deploy --aws-profile $npm_config_profile",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
