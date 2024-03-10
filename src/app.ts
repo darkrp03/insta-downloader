@@ -1,50 +1,23 @@
-import { Telegraf } from "telegraf";
-import { message } from "telegraf/filters";
+import { InstaCredentials } from "./instagram/credentials";
+import { TelegramBot } from "./telegram/bot";
 import dotenv from "dotenv";
-import { InstagramService } from "./instagram/instagram.service";
 
 dotenv.config();
+InstaCredentials.load();
 
-const token = process.env.TELEGRAM_TOKEN;
+const bot = new TelegramBot();
 
-if (!token) {
-    throw new Error('Empty telegram bot token!');
-}
-
-const bot = new Telegraf(token);
-
-bot.start((ctx) => {
-    ctx.reply('Hello!');
-})
-
-bot.on(message('text'), async (ctx) => {
+export async function webhook(event: any) {
     try {
-        const instagramService = new InstagramService();
-        const id = instagramService.getPostId(ctx.text);
-
-        if (!id) {
-            ctx.reply('Instagram post/reel ID was not found!');
-
-            return;
+        if (event.body) {
+            const requestBody = JSON.parse(event.body);
+            await bot.update(requestBody);
         }
 
-        const path = await instagramService.downloadReel(id);
-
-        if (!path) {
-            ctx.reply('Something went wrong! Please try again!');
-
-            return;
-        }
-
-        await ctx.replyWithVideo(path, { caption: 'Your video' });
-    } 
+        return { statusCode: 200, body: "" };
+    }
     catch (err) {
         console.log(err);
-        ctx.reply('Something went wrong! Please try again!');
+        return { statusCode: 500, body: "Internal server error" };
     }
-})
-
-bot.launch();
-
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+}
