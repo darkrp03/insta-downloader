@@ -23,6 +23,9 @@ provider:
   runtime: nodejs20.x
   environment:
     TELEGRAM_TOKEN: ${env.TELEGRAM_TOKEN}
+    USER_AGENT: ${env.USER_AGENT}
+    X_IG_APP_ID: ${env.X_IG_APP_ID}
+    INSTA_COOKIES: ${env.INSTA_COOKIES}
 
 functions:
   webhook:
