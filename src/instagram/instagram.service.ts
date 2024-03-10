@@ -1,67 +1,26 @@
 import axios from "axios";
-import * as fs from "fs";
-import { Credentials } from "../credentials";
-import path from "path";
-import { InstagramVideo } from "./interfaces/instagram.interface";
+import { InstaCredentials } from "./credentials";
 
 export class InstagramService {
-    private async downloadVideo(video: InstagramVideo): Promise<string | undefined> {
-        if (!video.url || !video.name) {
-            return;
-        }
-
-        const response = await axios.get(video.url, {
-            responseType: 'stream'
-        });
-
-        const videoPath = path.resolve(path.join('data', video.name));
-
-        const writer = fs.createWriteStream(videoPath);
-        response.data.pipe(writer);
-
-        return new Promise<string>((resolve, reject) => {
-            writer.on('finish', () => resolve(videoPath));
-            writer.on('error', reject);
-        });
-    }
-
-    private async getVideoInfo(postId: string): Promise<InstagramVideo | undefined> {
+    async getVideoUrl(postId: string): Promise<string | undefined> {
         const instagramUrl = `https://www.instagram.com/p/${postId}/?__a=1&__d=dis`;
-        const headers = Credentials.getHeaders();
+        const headers = InstaCredentials.getHeaders();
     
         const response = await axios.get(instagramUrl, {
             headers: headers
         });
 
-        const obj = response.data;
-        const videoUrl = obj["graphql"]["shortcode_media"]["video_url"] as string;
+        const items = response.data["items"];
+        const item = items[0];
+        const video_versions = item["video_versions"];
+        const video_version = video_versions[video_versions.length - 1];
+        const url = video_version["url"];
 
-        if (!videoUrl) {
+        if (!url) {
             return;
         }
 
-        const splittedUrl = videoUrl.split('?');
-        const extname = path.extname(splittedUrl[0]);
-        const videoName = obj["graphql"]["shortcode_media"]["id"] + extname;
-
-        const videoInfo: InstagramVideo = {
-            name: videoName,
-            url: videoUrl
-        }
-
-        return videoInfo;
-    }
-
-    async downloadReel(postId: string) {
-        const video = await this.getVideoInfo(postId);
-
-        if (!video) {
-            return;
-        }
-
-        const path = await this.downloadVideo(video);
-
-        return path;
+        return url;
     }
 
     getPostId(url: string) {
