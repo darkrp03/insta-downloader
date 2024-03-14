@@ -5,7 +5,7 @@ export class FileApi {
         const response = await axios.get(url);
         const length = response.headers["content-length"];
 
-        return length as number;
+        return Number(length);
     }
 
     static convertToMegabytes(bytes: number) {
