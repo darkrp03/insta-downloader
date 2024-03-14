@@ -20,7 +20,11 @@ All credentials you can get from graphl request in Network tab.
 
 # Installation
 ## Offline
-1.Clone this project using git clone https://github.com/darkrp03/insta-downloader.git<br>
+1.Clone this project using:
+```
+git clone https://github.com/darkrp03/insta-downloader.git
+```
+
 2.Open cmd and navigate to the project folder.<br>
 3.Run this command
 ```
@@ -42,7 +46,10 @@ https://api.telegram.org/bot[PASTE TELEGRAM BOT TOKEN HERE]/setWebhook?url=https
 ```
 
 ## Online (AWS Lambda)
-1.Clone this project using git clone https://github.com/darkrp03/insta-downloader.git<br>
+1.Clone this project using:
+```
+git clone https://github.com/darkrp03/insta-downloader.git
+```
 2.Open cmd and navigate to the project folder.<br>
 3.Run this command
 ```
