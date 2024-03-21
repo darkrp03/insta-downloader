@@ -1,9 +1,37 @@
 import axios from "axios";
 import { InstaCredentials } from "./credentials";
-import { FileApi } from "../file/fileApi";
+import { FileService } from "../file/file.service";
+import { InstagramResponse, Reel } from "./interfaces/instagram";
 
 export class InstagramService {
-    async getVideoUrl(postId: string): Promise<string | undefined> {
+    private getReelVersions(response: InstagramResponse): Reel[] | undefined {
+        const item = response.items[0];
+        const reelVersions = item.video_versions;
+
+        return reelVersions;
+    }
+
+    private async getOptimalReel(reels: Reel[]): Promise<Reel | undefined> {
+        const promises: Promise<number>[] = [];
+        reels.forEach(reel => promises.push(FileService.getFileSizeFromUrl(reel.url)));
+
+        const results = await Promise.allSettled(promises);
+        const maxTelegramVideoSize = 50;
+
+        for (const index in results) {
+            const result = results[index];
+
+            if (result.status === 'fulfilled') {
+                const videoSize = result.value;
+
+                if (videoSize < maxTelegramVideoSize) {
+                    return reels[index];
+                }
+            }
+        }
+    }
+
+    async getVideoUrl(postId: string): Promise<string> {
         const instagramUrl = `https://www.instagram.com/p/${postId}/?__a=1&__d=dis`;
         const headers = InstaCredentials.getHeaders();
 
@@ -11,36 +39,22 @@ export class InstagramService {
             headers: headers
         });
 
-        const items = response.data["items"];
-        const item = items[0];
-        const videoVersions = item["video_versions"];
+        const reelVersions = this.getReelVersions(response.data);
 
-        if (!videoVersions) {
-            return;
+        if (!reelVersions) {
+            throw new Error('Empty video_versions property!');
         }
 
-        const promises: Promise<number>[] = [];
+        const reel = await this.getOptimalReel(reelVersions);
 
-        for (const videoVersion of videoVersions) {
-            const url = videoVersion["url"];
-            promises.push(FileApi.getFileSizeFromUrl(url));
+        if (!reel) {
+            throw new Error('Empty reel object!');
         }
 
-        const videoSizes = await Promise.all(promises);
-        const maxFileSize = 50;
-
-        for (const index in videoSizes) {
-            const videoSize = videoSizes[index];
-
-            const megabytes = FileApi.convertToMegabytes(videoSize);
-
-            if (megabytes < maxFileSize) {
-                return videoVersions[index]["url"];
-            }
-        }
+        return reel.url;
     }
 
-    getPostId(url: string) {
+    getPostId(url: string): string | undefined {
         const postRegex = /^https:\/\/(?:www\.)?instagram\.com\/p\/([a-zA-Z0-9_-]+)\/?/;
         const reelRegex = /^https:\/\/(?:www\.)?instagram\.com\/reels?\/([a-zA-Z0-9_-]+)\/?/;
 

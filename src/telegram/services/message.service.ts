@@ -19,15 +19,9 @@ export class TelegramMessageService {
             }
 
             ctx.reply('Loading...');
-            const videoUrl = await instagramService.getVideoUrl(id);
-
-            if (!videoUrl) {
-                ctx.reply('Something went wrong! Please try again!');
-
-                return;
-            }
+            const url = await instagramService.getVideoUrl(id);
             
-            await ctx.replyWithVideo(videoUrl, { caption: 'Your insta reel!', supports_streaming: true });
+            await ctx.replyWithVideo(url, { caption: 'Your insta reel!', supports_streaming: true });
         }
         catch (err) {
             console.log(err);

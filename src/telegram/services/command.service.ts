@@ -1,18 +1,18 @@
 import { Context } from "telegraf";
-import { helpMessage, startMessage } from "../message";
+import { messagesConfig } from "../../configs/message";
 
 export class TelegramCommandService {
     async start(ctx: Context) {
         const botInfo = await ctx.telegram.getMe();
-        const firstName = ctx.message?.from.first_name || '';
+        const firstName = ctx.message?.from.first_name || 'user';
 
-        const text = startMessage.replace('{0}', firstName)
+        const text = messagesConfig.messages.start.replace('{0}', firstName)
             .replace('{1}', botInfo.first_name);
 
         ctx.reply(text, { parse_mode: 'HTML' });
     }
 
     help(ctx: Context) {
-        ctx.reply(helpMessage, { parse_mode: 'HTML' });
+        ctx.reply(messagesConfig.messages.help, { parse_mode: 'HTML' });
     }
 }
