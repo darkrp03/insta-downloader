@@ -34,7 +34,7 @@ npm install
 5.Run this command 
 
 ```
-npm start
+npm run dev
 ```
 
 You've just launched a bot on your local machine!
