@@ -13,19 +13,19 @@ export class TelegramMessageService {
             const id = instagramService.getPostId(ctx.text);
 
             if (!id) {
-                ctx.reply('Instagram post/reel ID was not found!');
+                await ctx.reply('Instagram post/reel ID was not found!');
 
                 return;
             }
 
-            ctx.reply('Loading...');
+            await ctx.reply('Loading...');
             const url = await instagramService.getVideoUrl(id);
             
-            await ctx.replyWithVideo(url, { caption: 'Your insta reel!', supports_streaming: true });
+            await ctx.replyWithVideo(url, { supports_streaming: true });
         }
         catch (err) {
             console.log(err);
-            ctx.reply('Something went wrong! Please try again!');
+            await ctx.reply('Something went wrong! Please try again!');
         }
     }
 }

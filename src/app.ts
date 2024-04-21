@@ -1,10 +1,7 @@
-import { InstaCredentials } from "./instagram/credentials";
 import { TelegramBot } from "./telegram/bot";
 import dotenv from "dotenv";
 
 dotenv.config();
-InstaCredentials.load();
-
 const bot = new TelegramBot();
 
 export async function webhook(event: any) {

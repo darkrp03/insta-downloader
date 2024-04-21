@@ -1,57 +1,65 @@
 import axios from "axios";
-import { InstaCredentials } from "./credentials";
-import { FileService } from "../file/file.service";
-import { InstagramResponse, Reel } from "./interfaces/instagram";
+import { InstagramCookie } from "../configs/cookies";
+import { InstagramGraphql } from "../configs/graphql";
+import { InstagramCookiesResponse, InstagramGraphQlResponse } from "./interfaces/instagram";
 
 export class InstagramService {
-    private getReelVersions(response: InstagramResponse): Reel[] | undefined {
-        const item = response.items[0];
-        const reelVersions = item.video_versions;
-
-        return reelVersions;
-    }
-
-    private async getOptimalReel(reels: Reel[]): Promise<Reel | undefined> {
-        const promises: Promise<number>[] = [];
-        reels.forEach(reel => promises.push(FileService.getFileSizeFromUrl(reel.url)));
-
-        const results = await Promise.allSettled(promises);
-        const maxTelegramVideoSize = 50;
-
-        for (const index in results) {
-            const result = results[index];
-
-            if (result.status === 'fulfilled') {
-                const videoSize = result.value;
-
-                if (videoSize < maxTelegramVideoSize) {
-                    return reels[index];
-                }
-            }
-        }
-    }
-
-    async getVideoUrl(postId: string): Promise<string> {
+    private async getVideoUrlUsingCookies(postId: string): Promise<string> {
         const instagramUrl = `https://www.instagram.com/p/${postId}/?__a=1&__d=dis`;
-        const headers = InstaCredentials.getHeaders();
+        const instagramCookie = new InstagramCookie();
+        instagramCookie.load();
+
+        const headers = instagramCookie.getHeaders();
 
         const response = await axios.get(instagramUrl, {
             headers: headers
         });
 
-        const reelVersions = this.getReelVersions(response.data);
-
-        if (!reelVersions) {
+        const data = response.data as InstagramCookiesResponse;
+        const item = data.items[0];
+        
+        if (!item.video_versions) {
             throw new Error('Empty video_versions property!');
         }
 
-        const reel = await this.getOptimalReel(reelVersions);
+        const videoUrl = item.video_versions[0].url
 
-        if (!reel) {
-            throw new Error('Empty reel object!');
+        if (!videoUrl) {
+            throw new Error('Empty url property!');
         }
 
-        return reel.url;
+        return videoUrl;
+    }
+
+    private async getVideoUrlUsingGraphQl(postId: string): Promise<string> {
+        const instagramUrl = `https://www.instagram.com/api/graphql`;
+        const instagramGraphQl = new InstagramGraphql();
+
+        const headers = instagramGraphQl.getGraphqlHeaders();
+        const graphqlData = instagramGraphQl.getGraphqlQueryString(postId);
+
+        const response = await axios.post(instagramUrl, graphqlData, {
+            headers: headers
+        })
+
+        const data = response.data as InstagramGraphQlResponse;
+        const videoUrl = data.data.xdt_shortcode_media.video_url;
+
+        if (!videoUrl) {
+            throw new Error('Empty video_url property!');
+        }
+
+        return videoUrl;
+    }
+
+    async getVideoUrl(postId: string): Promise<string> {
+        const useGraphQl = process.env.USE_GRAPHQL;
+
+        if (!useGraphQl) {
+            return await this.getVideoUrlUsingCookies(postId);
+        }
+
+        return await this.getVideoUrlUsingGraphQl(postId);
     }
 
     getPostId(url: string): string | undefined {
