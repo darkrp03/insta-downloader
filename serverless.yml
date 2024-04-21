@@ -28,3 +28,4 @@ functions:
          path: webhook
          method: post
          cors: true
+    timeout: 60
