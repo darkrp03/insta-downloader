@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npx tsc && serverless offline",
-    "deploy-win": "npx tsc && serverless deploy --aws-profile %npm_config_profile%",
-    "deploy-bash": "npx tsc && serverless deploy --aws-profile $npm_config_profile",
+    "dev": "npx tsc && cross-env NODE_ENV=development npx serverless offline",
+    "deploy-win": "npx tsc && cross-env NODE_ENV=production npx serverless deploy --aws-profile %npm_config_profile%",
+    "deploy-bash": "npx tsc && cross-env NODE_ENV=production npx serverless deploy --aws-profile $npm_config_profile",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -20,9 +20,10 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
+    "cross-env": "^7.0.3",
     "esbuild": "^0.20.1",
     "serverless-dotenv-plugin": "^6.0.0",
-    "serverless-esbuild": "^1.51.0",
-    "serverless-offline": "^13.3.3"
+    "serverless-offline": "^13.3.3",
+    "typescript": "^5.4.3"
   }
 }

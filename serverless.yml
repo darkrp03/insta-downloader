@@ -4,19 +4,12 @@ frameworkVersion: '3'
 plugins:
   - serverless-dotenv-plugin
   - serverless-offline
-  - serverless-esbuild
-
-useDotenv: true
 
 custom:
-  esbuild:
-    packager: npm
-    packagePath: package.json
-    packagerOptions: # optional - packager related options, currently supports only 'scripts' for both npm, pnpm and yarn
-      scripts: # scripts to be executed, can be a string or array of strings
-        - echo 'Hello World!'
-        - rm -rf node_modules
-    minify: true
+  serverless-offline:
+    host: "0.0.0.0"
+
+useDotenv: true
 
 provider:
   name: aws
