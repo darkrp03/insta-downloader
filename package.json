@@ -4,10 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npm run build && cross-env NODE_ENV=development npx serverless offline",
-    "build": "node esbuild.config.js",
-    "deploy-win": "npm run build && cross-env NODE_ENV=production npx serverless deploy --aws-profile %npm_config_profile%",
-    "deploy-bash": "npm run build && cross-env NODE_ENV=production npx serverless deploy --aws-profile $npm_config_profile",
+    "dev": "npx tsc && cross-env NODE_ENV=development npx serverless offline",
+    "deploy-win": "npx tsc && cross-env NODE_ENV=production npx serverless deploy --aws-profile %npm_config_profile%",
+    "deploy-bash": "npx tsc && cross-env NODE_ENV=production npx serverless deploy --aws-profile $npm_config_profile",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
